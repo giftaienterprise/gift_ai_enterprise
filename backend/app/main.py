@@ -14,6 +14,7 @@ from app.api.gift import router as gift_router
 from fastapi.staticfiles import StaticFiles
 from app.api.upload import router as upload_router
 from app.api.gift_image import router as gift_image_router
+from app.api.ai import router as ai_router
 
 
 app = FastAPI(
@@ -45,6 +46,7 @@ app.include_router(brand_router, prefix="/api")
 app.include_router(gift_router, prefix="/api")
 app.include_router(upload_router, prefix="/api")
 app.include_router(gift_image_router, prefix="/api")
+app.include_router(ai_router)
 
 
 @app.get("/")
