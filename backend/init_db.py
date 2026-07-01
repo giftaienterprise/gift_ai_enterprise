@@ -1,6 +1,6 @@
 from app.database.session import Base, engine
 
-# 导入所有模型，确保 SQLAlchemy 能识别所有表
+# 导入所有模型，确保 SQLAlchemy 注册
 from app.models import User, Category, Brand, Gift
 
 
