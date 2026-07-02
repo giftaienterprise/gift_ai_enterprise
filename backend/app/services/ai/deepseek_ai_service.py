@@ -1,20 +1,22 @@
 from openai import OpenAI
 
 from app.core.config import settings
-from app.services.ai.base_ai_service import BaseAIService
 
 
-class DeepSeekAIService(BaseAIService):
+class DeepSeekAIService:
     """
-    DeepSeek AI 服务封装
+    DeepSeek AI 服务封装（企业级稳定版）
     """
 
     def __init__(self):
         self.client = None
 
+    # =========================
+    # 初始化 Client
+    # =========================
     def _get_client(self) -> OpenAI:
         if not settings.DEEPSEEK_API_KEY:
-            raise ValueError("DEEPSEEK_API_KEY 未配置，请检查 backend/.env 文件")
+            raise ValueError("DEEPSEEK_API_KEY 未配置")
 
         if self.client is None:
             self.client = OpenAI(
@@ -26,13 +28,20 @@ class DeepSeekAIService(BaseAIService):
 
         return self.client
 
+    # =========================
+    # Chat 核心方法
+    # =========================
     def chat(
         self,
         prompt: str,
         system_prompt: str | None = None,
     ) -> str:
+        """
+        调用 DeepSeek Chat
+        """
+
         if system_prompt is None:
-            system_prompt = "你是 Gift AI Enterprise 的企业级 AI 助手。"
+            system_prompt = "你是 Gift AI Enterprise 企业级AI助手。"
 
         client = self._get_client()
 
@@ -40,21 +49,35 @@ class DeepSeekAIService(BaseAIService):
             response = client.chat.completions.create(
                 model=settings.DEEPSEEK_MODEL,
                 messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt},
+                    {
+                        "role": "system",
+                        "content": system_prompt,
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    },
                 ],
                 temperature=0.7,
             )
 
-            return response.choices[0].message.content or ""
+            content = response.choices[0].message.content
+
+            return content or ""
 
         except Exception as e:
+            # =========================
+            # 企业级降级返回
+            # =========================
             return (
                 "{"
-                f'"error": "AI_SERVICE_ERROR", '
+                f'"error": "DEEPSEEK_ERROR", '
                 f'"message": "{str(e)}"'
                 "}"
             )
 
 
+# =========================
+# 单例模式
+# =========================
 deepseek_ai_service = DeepSeekAIService()
