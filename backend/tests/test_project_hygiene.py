@@ -43,6 +43,26 @@ class ProjectHygieneTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, "")
 
+    def test_systemd_service_runs_unprivileged_on_loopback(self):
+        service = (ROOT / "deploy/systemd/gift-ai.service").read_text()
+        self.assertIn("User=giftai", service)
+        self.assertIn(
+            "WorkingDirectory=/opt/gift_ai_enterprise/backend",
+            service,
+        )
+        self.assertIn("--host 127.0.0.1", service)
+        self.assertIn("--workers 1", service)
+        self.assertIn(
+            "EnvironmentFile=/opt/gift_ai_enterprise/backend/.env",
+            service,
+        )
+
+    def test_nginx_only_proxies_to_loopback(self):
+        nginx = (ROOT / "deploy/nginx/gift-ai.conf").read_text()
+        self.assertIn("listen 80", nginx)
+        self.assertIn("proxy_pass http://127.0.0.1:8000", nginx)
+        self.assertIn("client_max_body_size 10m", nginx)
+
 
 if __name__ == "__main__":
     unittest.main()
