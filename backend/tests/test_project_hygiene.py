@@ -114,6 +114,25 @@ class ProjectHygieneTests(unittest.TestCase):
         self.assertNotIn("alternatives", bootstrap)
         self.assertNotIn("/usr/local/bin/python3", bootstrap)
 
+    def test_backend_ci_matches_deployment_checks(self):
+        workflow = (ROOT / ".github/workflows/backend-tests.yml").read_text()
+        self.assertIn("pull_request:", workflow)
+        self.assertIn("master", workflow)
+        self.assertIn("codex/**", workflow)
+        self.assertIn("permissions:\n  contents: read", workflow)
+        self.assertIn("uses: actions/checkout@v6", workflow)
+        self.assertIn("uses: actions/setup-python@v6", workflow)
+        self.assertIn("python-version: '3.11'", workflow)
+        self.assertIn("cache: pip", workflow)
+        self.assertIn("python -m pip check", workflow)
+        self.assertIn("python -m compileall -q app", workflow)
+        self.assertIn(
+            "python -m unittest discover -s tests -p 'test_*.py' -v",
+            workflow,
+        )
+        self.assertIn("DATABASE_URL: sqlite:///./ci.db", workflow)
+        self.assertIn("SECRET_KEY: ci-only-secret", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
