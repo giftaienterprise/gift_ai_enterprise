@@ -42,7 +42,10 @@ class ErrorRedactionTests(unittest.IsolatedAsyncioTestCase):
             SECRET_ERROR
         )
 
-        with self.assertRaisesRegex(RuntimeError, "DeepSeek request failed") as raised:
+        with (
+            patch.object(settings, "DEEPSEEK_API_KEY", "test-only"),
+            self.assertRaisesRegex(RuntimeError, "DeepSeek request failed") as raised,
+        ):
             deepseek_ai_service.chat("hello")
         self.assertNotIn("secret", str(raised.exception))
 
