@@ -1,5 +1,7 @@
+import os
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -43,6 +45,32 @@ class ProjectHygieneTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, "")
+
+    def test_app_creates_missing_upload_directory(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            env = os.environ.copy()
+            env.update(
+                DATABASE_URL="sqlite:///./test.db",
+                SECRET_KEY="test-secret",
+                PYTHONPATH=str(ROOT / "backend"),
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    (
+                        "from pathlib import Path; "
+                        "import app.main; "
+                        "assert Path('uploads').is_dir()"
+                    ),
+                ],
+                cwd=temp_dir,
+                env=env,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_systemd_service_runs_unprivileged_on_loopback(self):
         service = (ROOT / "deploy/systemd/gift-ai.service").read_text()

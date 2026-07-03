@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
@@ -40,6 +42,7 @@ app = FastAPI(
 # =========================
 # Static Files（上传文件）
 # =========================
+Path(settings.UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 app.mount(
     settings.UPLOAD_URL_PREFIX,
     StaticFiles(directory=settings.UPLOAD_DIR),
