@@ -4,6 +4,7 @@ venv/
 
 # IDE-local state
 .idea/
+.worktrees/
 
 # Python caches and tooling
 __pycache__/
