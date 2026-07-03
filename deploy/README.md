@@ -34,6 +34,7 @@ dnf install -y git
 git clone --branch codex/project-stability https://github.com/giftaienterprise/gift_ai_enterprise.git /opt/gift_ai_enterprise
 bash /opt/gift_ai_enterprise/deploy/scripts/bootstrap_alinux3.sh
 chown -R giftai:giftai /opt/gift_ai_enterprise
+python3.11 --version
 ```
 
 ## 3. Create the server environment

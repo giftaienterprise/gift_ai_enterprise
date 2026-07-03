@@ -6,7 +6,7 @@ if [[ ${EUID} -ne 0 ]]; then
   exit 1
 fi
 
-dnf install -y git python3 python3-pip python3-devel gcc nginx curl tar sudo
+dnf install -y git python3.11 gcc nginx curl tar sudo
 
 if ! id giftai >/dev/null 2>&1; then
   useradd --system --home-dir /opt/gift_ai_enterprise --shell /sbin/nologin giftai

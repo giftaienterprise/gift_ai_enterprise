@@ -63,6 +63,14 @@ class ProjectHygieneTests(unittest.TestCase):
         self.assertIn("proxy_pass http://127.0.0.1:8000", nginx)
         self.assertIn("client_max_body_size 10m", nginx)
 
+    def test_alinux_deployment_uses_python311_without_replacing_system_python(self):
+        bootstrap = (ROOT / "deploy/scripts/bootstrap_alinux3.sh").read_text()
+        deploy = (ROOT / "deploy/scripts/deploy_internal.sh").read_text()
+        self.assertIn("python3.11", bootstrap)
+        self.assertIn("python3.11 -m venv", deploy)
+        self.assertNotIn("alternatives", bootstrap)
+        self.assertNotIn("/usr/local/bin/python3", bootstrap)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -47,7 +47,7 @@ else
 fi
 
 if [[ ! -x "$APP_DIR/.venv/bin/python" ]]; then
-  sudo -u giftai python3 -m venv "$APP_DIR/.venv"
+  sudo -u giftai python3.11 -m venv "$APP_DIR/.venv"
 fi
 
 sudo -u giftai "$APP_DIR/.venv/bin/python" -m pip install --upgrade pip
