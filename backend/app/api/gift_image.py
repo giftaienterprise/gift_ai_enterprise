@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.response import success
+from app.core.dependencies import get_current_user
 from app.database.session import get_db
 from app.services.business.gift_business_service import gift_business_service
 
@@ -12,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.delete("/{image_id}")
+@router.delete("/{image_id}", dependencies=[Depends(get_current_user)])
 def delete_image(
     image_id: int,
     db: Session = Depends(get_db),

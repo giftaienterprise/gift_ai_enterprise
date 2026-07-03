@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     UPLOAD_DIR: str = "uploads"
     UPLOAD_URL_PREFIX: str = "/uploads"
+    STORAGE_DRIVER: str = "local"
 
     DEEPSEEK_API_KEY: str | None = None
     DEEPSEEK_BASE_URL: str = "https://api.deepseek.com"

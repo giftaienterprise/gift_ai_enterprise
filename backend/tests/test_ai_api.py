@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.core.dependencies import enforce_ai_rate_limit
 from app.schemas.ai_facade import AIResponse
 from app.services.business.ai_business_service import ai_business_service
 
@@ -20,7 +21,12 @@ def successful_response(task_type: str, data: dict) -> AIResponse:
 class AIAPITests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        app.dependency_overrides[enforce_ai_rate_limit] = lambda: object()
         cls.client = TestClient(app)
+
+    @classmethod
+    def tearDownClass(cls):
+        app.dependency_overrides.pop(enforce_ai_rate_limit, None)
 
     def test_product_description_route(self):
         response_value = successful_response(
