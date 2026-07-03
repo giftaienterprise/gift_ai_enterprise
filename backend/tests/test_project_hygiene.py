@@ -97,6 +97,8 @@ class ProjectHygieneTests(unittest.TestCase):
     def test_nginx_only_proxies_to_loopback(self):
         nginx = (ROOT / "deploy/nginx/gift-ai.conf").read_text()
         self.assertIn("listen 80", nginx)
+        self.assertIn("server_name 112.125.89.10", nginx)
+        self.assertNotIn("server_name _", nginx)
         self.assertIn("proxy_pass http://127.0.0.1:8000", nginx)
         self.assertIn("client_max_body_size 10m", nginx)
 
@@ -105,6 +107,10 @@ class ProjectHygieneTests(unittest.TestCase):
         deploy = (ROOT / "deploy/scripts/deploy_internal.sh").read_text()
         self.assertIn("python3.11", bootstrap)
         self.assertIn("python3.11 -m venv", deploy)
+        self.assertIn(
+            'sudo -u giftai git -C "$APP_DIR" rev-parse HEAD',
+            deploy,
+        )
         self.assertNotIn("alternatives", bootstrap)
         self.assertNotIn("/usr/local/bin/python3", bootstrap)
 

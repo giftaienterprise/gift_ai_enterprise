@@ -68,7 +68,8 @@ systemctl reload nginx
 
 for _ in {1..30}; do
   if curl --fail --silent --show-error http://127.0.0.1/health >/dev/null; then
-    echo "Deployment healthy at commit $(git -C "$APP_DIR" rev-parse HEAD)."
+    deployed_commit=$(sudo -u giftai git -C "$APP_DIR" rev-parse HEAD)
+    echo "Deployment healthy at commit $deployed_commit."
     exit 0
   fi
   sleep 1
