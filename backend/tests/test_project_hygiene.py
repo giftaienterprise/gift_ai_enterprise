@@ -85,6 +85,14 @@ class ProjectHygieneTests(unittest.TestCase):
             "EnvironmentFile=/opt/gift_ai_enterprise/backend/.env",
             service,
         )
+        read_write_paths = next(
+            line for line in service.splitlines()
+            if line.startswith("ReadWritePaths=")
+        )
+        self.assertEqual(
+            read_write_paths,
+            "ReadWritePaths=/opt/gift_ai_enterprise/backend",
+        )
 
     def test_nginx_only_proxies_to_loopback(self):
         nginx = (ROOT / "deploy/nginx/gift-ai.conf").read_text()
