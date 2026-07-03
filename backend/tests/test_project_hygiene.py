@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -31,7 +32,7 @@ class ProjectHygieneTests(unittest.TestCase):
     def test_tool_package_import_is_silent(self):
         result = subprocess.run(
             [
-                str(ROOT / ".venv" / "Scripts" / "python.exe"),
+                sys.executable,
                 "-c",
                 "import app.services.ai.tools.init",
             ],
