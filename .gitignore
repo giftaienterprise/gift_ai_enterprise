@@ -1,16 +1,25 @@
-# Virtual Environment
+# Virtual environments
 .venv/
+venv/
 
-# IDE
+# IDE-local state
 .idea/
 
-# Python Cache
+# Python caches and tooling
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
-# Database
+# Local databases and secrets
 *.db
-
-# Environment
 .env
+.env.*
+!.env.example
+
+# Runtime uploads
+uploads/
+backend/uploads/

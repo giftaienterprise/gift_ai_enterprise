@@ -8,6 +8,7 @@ from app.schemas.gift import GiftCreate, GiftResponse, GiftUpdate
 from app.schemas.gift_image import GiftImageResponse
 
 from app.core.dependencies import get_gift_business_service
+from app.services.crud.gift_service import gift_service
 
 
 router = APIRouter(

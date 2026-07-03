@@ -2,14 +2,14 @@ from pydantic import BaseModel
 from fastapi import APIRouter
 
 from app.services.business.ai_business_service import ai_business_service
-from app.services.business.gift_business_service import gift_business_service
 
 
-router = APIRouter(
-    prefix="/ai",
-    tags=["AI"],
-)
+router = APIRouter(prefix="/ai", tags=["AI"])
 
+
+# =========================
+# Request Models
+# =========================
 
 class ProductDescriptionRequest(BaseModel):
     name: str
@@ -18,57 +18,58 @@ class ProductDescriptionRequest(BaseModel):
     price: float | None = None
 
 
-class ProductTagsRequest(BaseModel):
-    name: str
-    category_name: str | None = None
-    brand_name: str | None = None
+class ProductTagsRequest(ProductDescriptionRequest):
     description: str | None = None
-    price: float | None = None
 
 
 class ImageRecognitionRequest(BaseModel):
     image_url: str
 
 
-class AnalyzeProductRequest(BaseModel):
-    name: str
-    category_name: str | None = None
-    brand_name: str | None = None
-    description: str | None = None
-    price: float | None = None
+class AnalyzeProductRequest(ProductTagsRequest):
     image_url: str | None = None
 
 
-@router.get("/test")
-def test_ai():
-    result = ai_business_service.test_connection()
+# =========================
+# Response Helper
+# =========================
 
+def response(message: str, result):
     return {
-        "success": True,
-        "message": "DeepSeek connected.",
-        "data": result,
+        "success": getattr(result, "success", True),
+        "message": message,
+        "data": getattr(result, "data", None),
+        "error": getattr(result, "error", None),
     }
+
+
+# =========================
+# API
+# =========================
+
+@router.get("/test")
+async def test_ai():
+    result = await ai_business_service.test_connection()
+    return response("DeepSeek connected", result)
 
 
 @router.post("/product-description")
-def generate_product_description(data: ProductDescriptionRequest):
-    result = gift_business_service.generate_ai_description(
+async def product_description(data: ProductDescriptionRequest):
+
+    result = await ai_business_service.generate_product_description(
         name=data.name,
         category_name=data.category_name,
         brand_name=data.brand_name,
         price=data.price,
     )
 
-    return {
-        "success": True,
-        "message": "AI 商品描述生成成功",
-        "data": result,
-    }
+    return response("AI 商品描述生成成功", result)
 
 
 @router.post("/product-tags")
-def generate_product_tags(data: ProductTagsRequest):
-    result = gift_business_service.generate_ai_tags(
+async def product_tags(data: ProductTagsRequest):
+
+    result = await ai_business_service.generate_product_tags(
         name=data.name,
         category_name=data.category_name,
         brand_name=data.brand_name,
@@ -76,28 +77,23 @@ def generate_product_tags(data: ProductTagsRequest):
         price=data.price,
     )
 
-    return {
-        "success": True,
-        "message": "AI 商品标签生成成功",
-        "data": result,
-    }
+    return response("AI 商品标签生成成功", result)
 
 
 @router.post("/image-recognition")
-def recognize_product_image(data: ImageRecognitionRequest):
-    result = gift_business_service.recognize_ai_image(
-        image_url=data.image_url,
+async def image_recognition(data: ImageRecognitionRequest):
+
+    result = await ai_business_service.recognize_image(
+        image_url=data.image_url
     )
 
-    return {
-        "success": True,
-        "message": "AI 图片识别完成",
-        "data": result,
-    }
+    return response("AI 图片识别完成", result)
+
 
 @router.post("/analyze-product")
 async def analyze_product(data: AnalyzeProductRequest):
-    result = await gift_business_service.analyze_ai_product(
+
+    result = await ai_business_service.analyze_product(
         name=data.name,
         category_name=data.category_name,
         brand_name=data.brand_name,
@@ -106,8 +102,4 @@ async def analyze_product(data: AnalyzeProductRequest):
         image_url=data.image_url,
     )
 
-    return {
-        "success": True,
-        "message": "AI 商品统一分析成功",
-        "data": result,
-    }
+    return response("AI 商品统一分析成功", result)
