@@ -1,10 +1,20 @@
-from fastapi import APIRouter
+import logging
+
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from app.services.ai.agent_brain import agent_brain
+from app.core.dependencies import enforce_ai_rate_limit
 
 
-router = APIRouter(prefix="/agent", tags=["Agent"])
+logger = logging.getLogger(__name__)
+
+
+router = APIRouter(
+    prefix="/agent",
+    tags=["Agent"],
+    dependencies=[Depends(enforce_ai_rate_limit)],
+)
 
 
 class AgentRunRequest(BaseModel):
@@ -45,10 +55,11 @@ async def run_agent(request: AgentRunRequest):
             error="Brain not enabled"
         )
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Agent execution failed")
 
         return AgentRunResponse(
             success=False,
             goal=request.goal,
-            error=str(e)
+            error="AGENT_EXECUTION_FAILED"
         )

@@ -1,9 +1,15 @@
+import logging
+
+from app.core.config import settings
 from app.schemas.ai_facade import AIRequest, AIResponse
 from app.services.ai.providers.base import BaseAIProvider
 from app.services.ai.deepseek_ai_service import deepseek_ai_service
 from app.services.ai.ai_redis_cache import ai_redis_cache
 from app.services.ai.model_router import ai_model_router
 from app.services.ai.cost_controller import ai_cost_controller
+
+
+logger = logging.getLogger(__name__)
 
 
 class DeepSeekProvider(BaseAIProvider):
@@ -36,11 +42,13 @@ class DeepSeekProvider(BaseAIProvider):
             # =========================
             # 3. Redis缓存
             # =========================
-            cached = ai_redis_cache.get(
-                task_type=request.task_type,
-                prompt=request.prompt or "",
-                model=model,
-            )
+            cached = None
+            if settings.AI_CACHE_ENABLED:
+                cached = ai_redis_cache.get(
+                    task_type=request.task_type,
+                    prompt=request.prompt or "",
+                    model=model,
+                )
 
             if cached:
                 return AIResponse(
@@ -63,12 +71,13 @@ class DeepSeekProvider(BaseAIProvider):
             # =========================
             # 5. 写缓存
             # =========================
-            ai_redis_cache.set(
-                task_type=request.task_type,
-                prompt=request.prompt or "",
-                value=result,
-                model=model,
-            )
+            if settings.AI_CACHE_ENABLED:
+                ai_redis_cache.set(
+                    task_type=request.task_type,
+                    prompt=request.prompt or "",
+                    value=result,
+                    model=model,
+                )
 
             return AIResponse(
                 success=True,
@@ -79,13 +88,14 @@ class DeepSeekProvider(BaseAIProvider):
                 meta={"model": model},
             )
 
-        except Exception as e:
+        except Exception:
+            logger.exception("AI provider execution failed")
             return AIResponse(
                 success=False,
                 task_type=request.task_type,
                 provider=self.provider_name,
                 data=None,
-                error=str(e),
+                error="AI_PROVIDER_ERROR",
                 cache_hit=False,
                 meta={"provider": self.provider_name},
             )

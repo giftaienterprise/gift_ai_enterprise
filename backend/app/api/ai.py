@@ -1,10 +1,15 @@
 from pydantic import BaseModel
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.core.dependencies import enforce_ai_rate_limit
 from app.services.business.ai_business_service import ai_business_service
 
 
-router = APIRouter(prefix="/ai", tags=["AI"])
+router = APIRouter(
+    prefix="/ai",
+    tags=["AI"],
+    dependencies=[Depends(enforce_ai_rate_limit)],
+)
 
 
 # =========================

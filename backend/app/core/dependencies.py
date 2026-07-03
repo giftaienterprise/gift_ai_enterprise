@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.security import decode_access_token
 from app.database.session import get_db
 from app.models.user import User
+from app.core.rate_limit import ai_rate_limiter
 from app.services.business.gift_business_service import gift_business_service
 
 
@@ -33,6 +34,14 @@ def get_current_user(
     if user is None or not user.is_active:
         raise credentials_exception()
     return user
+
+
+def enforce_ai_rate_limit(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    if not ai_rate_limiter.allow(str(current_user.id)):
+        raise HTTPException(status_code=429, detail="AI_RATE_LIMIT_EXCEEDED")
+    return current_user
 
 
 def get_gift_business_service():
