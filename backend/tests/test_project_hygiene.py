@@ -99,7 +99,7 @@ class ProjectHygieneTests(unittest.TestCase):
         self.assertIn("listen 80", nginx)
         self.assertIn("server_name 112.125.89.10", nginx)
         self.assertIn("releases/storefront/current", nginx)
-        self.assertIn("location /admin/", nginx)
+        self.assertIn("location ^~ /admin/", nginx)
         self.assertIn("releases/admin/current", nginx)
         self.assertIn("location /api/", nginx)
         self.assertIn("proxy_pass http://127.0.0.1:8000/api/", nginx)
