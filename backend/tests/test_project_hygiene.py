@@ -120,12 +120,13 @@ class ProjectHygieneTests(unittest.TestCase):
         self.assertIn("npm ci", deploy)
         self.assertIn("frontend/dist/", deploy)
         self.assertIn("admin/dist/", deploy)
-        self.assertIn("releases/storefront/current", deploy)
+        self.assertIn("sync_release_dir", deploy)
 
     def test_alinux_deployment_uses_python311_without_replacing_system_python(self):
         bootstrap = (ROOT / "deploy/scripts/bootstrap_alinux3.sh").read_text()
         deploy = (ROOT / "deploy/scripts/deploy_internal.sh").read_text()
         self.assertIn("python3.11", bootstrap)
+        self.assertIn("rsync", bootstrap)
         self.assertIn("python3.11 -m venv", deploy)
         self.assertIn(
             'sudo -u giftai git -C "$APP_DIR" rev-parse HEAD',

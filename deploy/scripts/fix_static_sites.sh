@@ -10,6 +10,9 @@ if [[ ${EUID} -ne 0 ]]; then
   exit 1
 fi
 
+# shellcheck source=lib/sync_static.sh
+source "$APP_DIR/deploy/scripts/lib/sync_static.sh"
+
 ensure_static_release() {
   local name=$1
   local source_dir=$2
@@ -25,7 +28,7 @@ ensure_static_release() {
     release_id=$(date -u +%Y%m%dT%H%M%SZ)
     release_dir="$target_root/$release_id"
     install -d -o giftai -g giftai -m 0755 "$release_dir"
-    rsync -a --delete "$source_dir/" "$release_dir/"
+    sync_release_dir "$source_dir" "$release_dir"
     ln -sfn "$release_dir" "$current_link"
     echo "Published $name release: $release_dir"
   fi
@@ -49,6 +52,7 @@ fi
 
 if [[ ! -f "$STOREFRONT_CURRENT/index.html" || ! -f "$ADMIN_CURRENT/index.html" ]]; then
   echo "Static releases missing; building frontend and admin..."
+  install -d -o giftai -g giftai -m 0755 "$APP_DIR/releases/storefront" "$APP_DIR/releases/admin"
   sudo -u giftai bash -c "cd '$APP_DIR/frontend' && npm ci && npm run build"
   sudo -u giftai bash -c "cd '$APP_DIR/admin' && npm ci && npm run build"
   ensure_static_release "storefront" "$APP_DIR/frontend/dist" "$APP_DIR/releases/storefront"

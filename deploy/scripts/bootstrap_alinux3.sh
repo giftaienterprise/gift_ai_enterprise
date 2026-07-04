@@ -6,7 +6,7 @@ if [[ ${EUID} -ne 0 ]]; then
   exit 1
 fi
 
-dnf install -y git python3.11 gcc nginx curl tar sudo nodejs npm
+dnf install -y git python3.11 gcc nginx curl tar rsync sudo nodejs npm
 
 if ! id giftai >/dev/null 2>&1; then
   useradd --system --home-dir /opt/gift_ai_enterprise --shell /sbin/nologin giftai
