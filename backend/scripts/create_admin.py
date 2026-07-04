@@ -68,14 +68,20 @@ def main() -> int:
             )
             return 1
 
-        password = args.password or getpass.getpass("Admin password: ")
-        confirm = getpass.getpass("Confirm password: ")
-        if password != confirm:
-            print("Passwords do not match.", file=sys.stderr)
-            return 1
-        if len(password) < 8:
-            print("Password must be at least 8 characters.", file=sys.stderr)
-            return 1
+        if args.password:
+            password = args.password
+            if len(password) < 8:
+                print("Password must be at least 8 characters.", file=sys.stderr)
+                return 1
+        else:
+            password = getpass.getpass("Admin password: ")
+            confirm = getpass.getpass("Confirm password: ")
+            if password != confirm:
+                print("Passwords do not match.", file=sys.stderr)
+                return 1
+            if len(password) < 8:
+                print("Password must be at least 8 characters.", file=sys.stderr)
+                return 1
 
         user = User(
             username=args.username,

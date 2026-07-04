@@ -22,11 +22,8 @@ Get-Content $Pub
 Write-Host ""
 Write-Host "Run on ECS as root:"
 Write-Host ""
-Write-Host @"
-mkdir -p ~/.ssh && chmod 700 ~/.ssh
-echo '$(Get-Content $Pub -Raw).Trim()' >> ~/.ssh/authorized_keys
-chmod 600 ~/.ssh/authorized_keys
-"@
+$pubKey = (Get-Content $Pub -Raw).Trim()
+Write-Host "echo '$pubKey' >> ~/.ssh/authorized_keys"
 Write-Host ""
 Write-Host "=== Step 2: Test from this PC ==="
 Write-Host "ssh -i `"$Key`" ${User}@${Server} echo ok"
