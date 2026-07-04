@@ -25,4 +25,4 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-sudo -u giftai bash -c "cd '$BACKEND_DIR' && '$PYTHON' scripts/create_admin.py $*"
+sudo -u giftai bash -c "cd '$BACKEND_DIR' && PYTHONPATH='$BACKEND_DIR' '$PYTHON' scripts/create_admin.py $*"
