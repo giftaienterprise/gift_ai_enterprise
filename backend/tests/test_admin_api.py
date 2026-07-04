@@ -3,6 +3,7 @@ import unittest
 from fastapi.testclient import TestClient
 
 from app.core.security import create_access_token, hash_password
+from app.database.migrate_gift_commerce import ensure_gift_commerce_columns
 from app.database.session import Base, SessionLocal, engine
 from app.main import app
 from app.models.user import User
@@ -12,6 +13,7 @@ class AdminAPITests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         Base.metadata.create_all(bind=engine)
+        ensure_gift_commerce_columns()
         cls.client = TestClient(app)
 
     def _headers(self, username: str, is_admin: bool) -> dict[str, str]:

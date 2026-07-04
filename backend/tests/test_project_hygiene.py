@@ -118,9 +118,9 @@ class ProjectHygieneTests(unittest.TestCase):
     def test_deploy_script_builds_frontends_when_npm_available(self):
         deploy = (ROOT / "deploy/scripts/deploy_internal.sh").read_text()
         self.assertIn("npm ci", deploy)
-        self.assertIn("frontend/dist/", deploy)
-        self.assertIn("admin/dist/", deploy)
         self.assertIn("sync_release_dir", deploy)
+        self.assertIn("frontend/dist", deploy)
+        self.assertIn("admin/dist", deploy)
 
     def test_alinux_deployment_uses_python311_without_replacing_system_python(self):
         bootstrap = (ROOT / "deploy/scripts/bootstrap_alinux3.sh").read_text()

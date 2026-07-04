@@ -9,9 +9,23 @@ const router = createRouter({
       component: () => import('@/views/HomeView.vue'),
     },
     {
+      path: '/demand',
+      name: 'demand',
+      component: () => import('@/views/DemandView.vue'),
+    },
+    {
+      path: '/result',
+      name: 'result',
+      component: () => import('@/views/ResultView.vue'),
+    },
+    {
+      path: '/recommend/:id',
+      name: 'recommend-detail',
+      component: () => import('@/views/RecommendDetailView.vue'),
+    },
+    {
       path: '/advisor',
-      name: 'advisor',
-      component: () => import('@/views/AdvisorView.vue'),
+      redirect: '/demand',
     },
     {
       path: '/catalog',

@@ -61,6 +61,12 @@ onMounted(async () => {
 function toggleFavorite() {
   if (gift.value) toggle(gift.value.id)
 }
+
+function openPurchase() {
+  if (gift.value?.purchase_url) {
+    window.open(gift.value.purchase_url, '_blank', 'noopener,noreferrer')
+  }
+}
 </script>
 
 <template>
@@ -88,10 +94,19 @@ function toggleFavorite() {
           <p v-if="gift.description" class="description">{{ gift.description }}</p>
 
           <div class="actions">
-            <button type="button" class="btn btn-primary" @click="contactOpen = true">
-              <ShoppingBag :size="18" />
-              联系购买
-            </button>
+      <button
+        v-if="gift.purchase_url"
+        type="button"
+        class="btn btn-primary"
+        @click="openPurchase"
+      >
+        <ShoppingBag :size="18" />
+        去购买
+      </button>
+      <button type="button" class="btn btn-secondary" @click="contactOpen = true">
+        <ShoppingBag :size="18" />
+        联系购买
+      </button>
             <button type="button" class="btn btn-secondary" @click="toggleFavorite">
               <Heart :size="18" :fill="favorited ? 'currentColor' : 'none'" />
               {{ favorited ? '已收藏' : '收藏' }}

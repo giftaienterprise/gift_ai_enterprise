@@ -57,6 +57,16 @@ class Gift(Base):
         default=0,
     )
 
+    purchase_url: Mapped[str] = mapped_column(
+        String(500),
+        default="",
+    )
+
+    platform: Mapped[str] = mapped_column(
+        String(20),
+        default="taobao",
+    )
+
     images = relationship(
         "GiftImage",
         back_populates="gift",

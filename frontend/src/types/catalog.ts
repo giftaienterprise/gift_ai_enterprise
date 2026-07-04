@@ -37,6 +37,9 @@ export type Gift = {
   category?: Category | null
   brand?: Brand | null
   images?: GiftImage[]
+  purchase_url?: string
+  platform?: string
+  platform_links?: Record<string, string>
 }
 
 export type PaginatedResult<T> = {

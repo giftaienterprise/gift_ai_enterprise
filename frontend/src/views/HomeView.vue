@@ -1,100 +1,149 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Sparkles } from 'lucide-vue-next'
-import ProductCard from '@/components/ProductCard.vue'
-import { listGifts } from '@/api/catalog'
-import type { Gift } from '@/types/catalog'
+import { useRecommendHistory } from '@/stores/recommendations'
 
 const router = useRouter()
-const gifts = ref<Gift[]>([])
-const loading = ref(true)
+const history = useRecommendHistory()
 
-onMounted(async () => {
-  try {
-    const result = await listGifts(1, 6)
-    gifts.value = result.items.filter((item) => item.is_active)
-  } catch {
-    gifts.value = []
-  } finally {
-    loading.value = false
-  }
-})
-
-function openProduct(id: number) {
-  router.push(`/products/${id}`)
+function quickStart(relation: string) {
+  router.push({ path: '/demand', query: { relation } })
 }
 
-function goAdvisor() {
-  router.push('/advisor')
-}
-
-function goCatalog() {
-  router.push('/catalog')
+function startRecommend() {
+  router.push('/demand')
 }
 </script>
 
 <template>
-  <section class="page home-view">
-    <div class="hero card">
-      <p class="eyebrow">AI 送礼参谋</p>
-      <h1 class="page-title">今天想为谁准备心意？</h1>
-      <p class="page-subtitle">
-        告诉我关系、场合和预算，我会帮你从精选礼物中找到更贴心的选择。
-      </p>
-      <button type="button" class="btn btn-primary hero-cta" @click="goAdvisor">
-        <Sparkles :size="18" />
-        开始咨询
-      </button>
+  <section class="page home-page">
+    <div class="hero-copy">
+      <h1>不知道该送什么？</h1>
+      <p>问问你的 AI 参谋</p>
     </div>
 
-    <div class="section-head">
-      <h2>精选礼物</h2>
-      <button type="button" class="btn btn-ghost" @click="goCatalog">查看全部</button>
-    </div>
+    <button type="button" class="card card-gradient" @click="quickStart('恋人')">
+      <div class="card-icon">💝</div>
+      <div class="card-title">为恋人挑选</div>
+      <div class="card-desc">纪念日、生日的浪漫惊喜</div>
+    </button>
 
-    <p v-if="loading" class="empty-state">加载中…</p>
-    <div v-else-if="gifts.length" class="grid-products">
-      <ProductCard
-        v-for="gift in gifts"
-        :key="gift.id"
-        :product="gift"
-        @open="openProduct"
-      />
+    <button type="button" class="card card-outline" @click="quickStart('父母')">
+      <div class="card-icon">🧧</div>
+      <div class="card-title">给长辈送心意</div>
+      <div class="card-desc">逢年过节表达孝心</div>
+    </button>
+
+    <button type="button" class="card card-outline blue" @click="quickStart('朋友')">
+      <div class="card-icon">🎁</div>
+      <div class="card-title">朋友间的惊喜</div>
+      <div class="card-desc">乔迁、生日聚会心意</div>
+    </button>
+
+    <button type="button" class="btn btn-primary" @click="startRecommend">
+      开始智能推荐
+    </button>
+
+    <div v-if="history.length" class="history">
+      <h3>历史推荐</h3>
+      <div v-for="(item, index) in history.slice(0, 3)" :key="index" class="history-item card">
+        为 {{ item.relation }} 的 {{ item.scene }} 方案
+      </div>
     </div>
-    <p v-else class="empty-state">暂无礼物，稍后再来看看吧。</p>
   </section>
 </template>
 
 <style scoped>
-.hero {
-  padding: 28px 24px;
-  margin-bottom: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(255, 135, 77, 0.18), transparent 55%),
-    #fff;
+.home-page {
+  padding-bottom: 24px;
 }
 
-.eyebrow {
-  margin: 0 0 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--coral);
+.hero-copy {
+  text-align: center;
+  padding: 20px 0;
 }
 
-.hero-cta {
-  margin-top: 8px;
+.hero-copy h1 {
+  margin: 0 0 4px;
+  font-size: 26px;
 }
 
-.section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.section-head h2 {
+.hero-copy p {
   margin: 0;
-  font-size: 1.125rem;
+  color: #999;
+  font-size: 15px;
+}
+
+.card {
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  background: #fff;
+}
+
+.card-gradient {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  color: #fff;
+}
+
+.card-outline {
+  border: 2px solid #ffe0e0;
+}
+
+.card-outline.blue {
+  border-color: #e0f0ff;
+}
+
+.card-icon {
+  font-size: 32px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.card-desc {
+  font-size: 13px;
+  opacity: 0.85;
+  color: inherit;
+}
+
+.card-outline .card-desc {
+  color: #999;
+}
+
+.btn-primary {
+  width: 100%;
+  margin-top: 10px;
+  padding: 16px;
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+  cursor: pointer;
+}
+
+.history {
+  margin-top: 24px;
+}
+
+.history h3 {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.history-item {
+  padding: 14px;
+  font-size: 14px;
 }
 </style>

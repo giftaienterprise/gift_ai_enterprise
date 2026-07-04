@@ -96,6 +96,12 @@ http://SERVER_IP/api/settings/public
 
 Direct access to `http://SERVER_IP:8000` must fail.
 
+## Public access and HTTPS
+
+For mobile access, security group rules, domain setup, and Let's Encrypt HTTPS, see:
+
+- [deploy/PUBLIC_ACCESS_AND_HTTPS.md](./PUBLIC_ACCESS_AND_HTTPS.md)
+
 ## 6. Reboot verification
 
 ```bash

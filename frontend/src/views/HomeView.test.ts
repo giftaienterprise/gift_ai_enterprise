@@ -1,31 +1,20 @@
-import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/vue'
+import { mount } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from './HomeView.vue'
-
-vi.mock('@/api/catalog', () => ({
-  listGifts: vi.fn().mockResolvedValue({ items: [] }),
-  formatPriceYuan: (cents: number) => `¥${cents / 100}`,
-}))
+import { describe, expect, it } from 'vitest'
+import HomeView from '@/views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [{ path: '/', component: { template: '<div />' } }],
+  routes: [{ path: '/', component: HomeView }],
 })
 
 describe('HomeView', () => {
-  it('renders the home heading', () => {
-    render(HomeView, {
-      global: {
-        plugins: [router],
-        stubs: {
-          ProductCard: true,
-        },
-      },
+  it('shows the template hero heading', async () => {
+    router.push('/')
+    await router.isReady()
+    const wrapper = mount(HomeView, {
+      global: { plugins: [router] },
     })
-
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
-      '今天想为谁准备心意？',
-    )
+    expect(wrapper.text()).toContain('不知道该送什么？')
   })
 })

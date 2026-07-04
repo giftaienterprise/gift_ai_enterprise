@@ -9,6 +9,7 @@ from app.schemas.gift_image import GiftImageResponse
 
 from app.core.dependencies import require_admin, get_gift_business_service
 from app.services.crud.gift_service import gift_service
+from app.services.gift_serializer import serialize_gift
 
 
 router = APIRouter(
@@ -37,7 +38,7 @@ def list_gifts(
     )
 
     result["items"] = [
-        GiftResponse.model_validate(item).model_dump()
+        serialize_gift(item)
         for item in result["items"]
     ]
 
@@ -63,9 +64,7 @@ def get_gift(
             detail="礼品不存在",
         )
 
-    return success(
-        GiftResponse.model_validate(gift).model_dump()
-    )
+    return success(serialize_gift(gift))
 
 
 # =========================
