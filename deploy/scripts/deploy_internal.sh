@@ -57,6 +57,25 @@ sudo -u giftai "$APP_DIR/.venv/bin/python" -m compileall -q "$APP_DIR/backend/ap
 sudo -u giftai bash -c "cd '$APP_DIR/backend' && ../.venv/bin/python init_db.py"
 sudo -u giftai bash -c "cd '$APP_DIR/backend' && ../.venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v"
 
+if command -v npm >/dev/null 2>&1; then
+  release_id=$(date -u +%Y%m%dT%H%M%SZ)
+  storefront_release="$APP_DIR/releases/storefront/$release_id"
+  admin_release="$APP_DIR/releases/admin/$release_id"
+  install -d -o giftai -g giftai -m 0750 "$storefront_release" "$admin_release"
+
+  sudo -u giftai bash -c "cd '$APP_DIR/frontend' && npm ci && npm run build"
+  sudo -u giftai bash -c "cd '$APP_DIR/admin' && npm ci && npm run build"
+
+  rsync -a --delete "$APP_DIR/frontend/dist/" "$storefront_release/"
+  rsync -a --delete "$APP_DIR/admin/dist/" "$admin_release/"
+  chown -R giftai:giftai "$APP_DIR/releases"
+
+  ln -sfn "$storefront_release" "$APP_DIR/releases/storefront/current"
+  ln -sfn "$admin_release" "$APP_DIR/releases/admin/current"
+else
+  echo "npm is not installed; skipping frontend and admin build." >&2
+fi
+
 install -o root -g root -m 0644 "$APP_DIR/deploy/systemd/gift-ai.service" /etc/systemd/system/gift-ai.service
 install -o root -g root -m 0644 "$APP_DIR/deploy/nginx/gift-ai.conf" /etc/nginx/conf.d/gift-ai.conf
 systemctl daemon-reload

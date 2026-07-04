@@ -3,7 +3,7 @@ import unittest
 from fastapi.routing import APIRoute
 from fastapi.testclient import TestClient
 
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_admin
 from app.main import app
 
 
@@ -34,14 +34,14 @@ def route_for(method: str, path: str) -> APIRoute:
 
 
 class RouteSecurityTests(unittest.TestCase):
-    def test_mutations_declare_active_user_dependency(self):
+    def test_mutations_declare_admin_dependency(self):
         for method, path in PROTECTED:
             with self.subTest(method=method, path=path):
                 calls = {
                     dependency.call
                     for dependency in route_for(method, path).dependant.dependencies
                 }
-                self.assertIn(get_current_user, calls)
+                self.assertIn(require_admin, calls)
 
     def test_ai_and_agent_reject_missing_token(self):
         client = TestClient(app)
@@ -61,6 +61,7 @@ class RouteSecurityTests(unittest.TestCase):
             ("GET", "/api/categories/"),
             ("GET", "/api/gifts/"),
             ("GET", "/api/gifts/{gift_id}"),
+            ("GET", "/api/settings/public"),
         }
         for method, path in public:
             with self.subTest(method=method, path=path):

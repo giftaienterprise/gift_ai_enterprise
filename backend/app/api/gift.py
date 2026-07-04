@@ -7,7 +7,7 @@ from app.database.session import get_db
 from app.schemas.gift import GiftCreate, GiftResponse, GiftUpdate
 from app.schemas.gift_image import GiftImageResponse
 
-from app.core.dependencies import get_current_user, get_gift_business_service
+from app.core.dependencies import require_admin, get_gift_business_service
 from app.services.crud.gift_service import gift_service
 
 
@@ -71,7 +71,7 @@ def get_gift(
 # =========================
 # Create Gift (DI + Business)
 # =========================
-@router.post("/", response_model=GiftResponse, dependencies=[Depends(get_current_user)])
+@router.post("/", response_model=GiftResponse, dependencies=[Depends(require_admin)])
 def create(
     data: GiftCreate,
     db: Session = Depends(get_db),
@@ -86,7 +86,7 @@ def create(
 # =========================
 # Attach Image (DI + Business)
 # =========================
-@router.post("/{gift_id}/images", dependencies=[Depends(get_current_user)])
+@router.post("/{gift_id}/images", dependencies=[Depends(require_admin)])
 def attach_gift_image(
     gift_id: int,
     data: GiftImageAttachRequest,
@@ -113,7 +113,7 @@ def attach_gift_image(
 # =========================
 # Update Gift
 # =========================
-@router.put("/{gift_id}", response_model=GiftResponse, dependencies=[Depends(get_current_user)])
+@router.put("/{gift_id}", response_model=GiftResponse, dependencies=[Depends(require_admin)])
 def update(
     gift_id: int,
     data: GiftUpdate,
@@ -140,7 +140,7 @@ def update(
 # =========================
 # Delete Gift
 # =========================
-@router.delete("/{gift_id}", dependencies=[Depends(get_current_user)])
+@router.delete("/{gift_id}", dependencies=[Depends(require_admin)])
 def delete(
     gift_id: int,
     db: Session = Depends(get_db),

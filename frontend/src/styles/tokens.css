@@ -1,0 +1,16 @@
+:root {
+  --coral: #ff625f;
+  --orange: #ff874d;
+  --ink: #20242c;
+  --muted: #747984;
+  --surface: #fff;
+  --surface-muted: #f7f5f3;
+  --border: #ece8e4;
+  --shadow: 0 12px 40px rgba(32, 36, 44, 0.08);
+  --radius-sm: 16px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --nav-height: 72px;
+  --header-height: 56px;
+  --gradient-brand: linear-gradient(135deg, var(--coral), var(--orange));
+}

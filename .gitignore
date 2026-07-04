@@ -24,3 +24,10 @@ htmlcov/
 # Runtime uploads
 uploads/
 backend/uploads/
+
+# Frontend and admin build artifacts
+frontend/node_modules/
+frontend/dist/
+admin/node_modules/
+admin/dist/
+*.tsbuildinfo

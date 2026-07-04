@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.response import success
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_admin
 from app.database.session import get_db
 from app.schemas.brand import BrandCreate, BrandResponse, BrandUpdate
 from app.services.crud.brand_service import brand_service
@@ -27,12 +27,12 @@ def list_brands(
     return success(result)
 
 
-@router.post("/", response_model=BrandResponse, dependencies=[Depends(get_current_user)])
+@router.post("/", response_model=BrandResponse, dependencies=[Depends(require_admin)])
 def create(data: BrandCreate, db: Session = Depends(get_db)):
     return brand_service.create(db, data)
 
 
-@router.put("/{brand_id}", response_model=BrandResponse, dependencies=[Depends(get_current_user)])
+@router.put("/{brand_id}", response_model=BrandResponse, dependencies=[Depends(require_admin)])
 def update(brand_id: int, data: BrandUpdate, db: Session = Depends(get_db)):
     brand = brand_service.get(db, brand_id)
 
@@ -42,7 +42,7 @@ def update(brand_id: int, data: BrandUpdate, db: Session = Depends(get_db)):
     return brand_service.update(db, brand, data)
 
 
-@router.delete("/{brand_id}", dependencies=[Depends(get_current_user)])
+@router.delete("/{brand_id}", dependencies=[Depends(require_admin)])
 def delete(brand_id: int, db: Session = Depends(get_db)):
     brand = brand_service.get(db, brand_id)
 

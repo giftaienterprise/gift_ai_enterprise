@@ -94,13 +94,25 @@ class ProjectHygieneTests(unittest.TestCase):
             "ReadWritePaths=/opt/gift_ai_enterprise/backend",
         )
 
-    def test_nginx_only_proxies_to_loopback(self):
+    def test_nginx_serves_frontends_and_proxies_api(self):
         nginx = (ROOT / "deploy/nginx/gift-ai.conf").read_text()
         self.assertIn("listen 80", nginx)
         self.assertIn("server_name 112.125.89.10", nginx)
-        self.assertNotIn("server_name _", nginx)
-        self.assertIn("proxy_pass http://127.0.0.1:8000", nginx)
-        self.assertIn("client_max_body_size 10m", nginx)
+        self.assertIn("releases/storefront/current", nginx)
+        self.assertIn("location /admin/", nginx)
+        self.assertIn("releases/admin/current", nginx)
+        self.assertIn("location /api/", nginx)
+        self.assertIn("proxy_pass http://127.0.0.1:8000/api/", nginx)
+        self.assertIn("location /uploads/", nginx)
+        self.assertIn("try_files $uri $uri/ /index.html", nginx)
+        self.assertNotIn(":8000;", nginx)
+
+    def test_deploy_script_builds_frontends_when_npm_available(self):
+        deploy = (ROOT / "deploy/scripts/deploy_internal.sh").read_text()
+        self.assertIn("npm ci", deploy)
+        self.assertIn("frontend/dist/", deploy)
+        self.assertIn("admin/dist/", deploy)
+        self.assertIn("releases/storefront/current", deploy)
 
     def test_alinux_deployment_uses_python311_without_replacing_system_python(self):
         bootstrap = (ROOT / "deploy/scripts/bootstrap_alinux3.sh").read_text()
@@ -113,6 +125,13 @@ class ProjectHygieneTests(unittest.TestCase):
         )
         self.assertNotIn("alternatives", bootstrap)
         self.assertNotIn("/usr/local/bin/python3", bootstrap)
+
+    def test_create_admin_script_exists(self):
+        script = ROOT / "backend/scripts/create_admin.py"
+        wrapper = ROOT / "deploy/scripts/create_admin.sh"
+        self.assertTrue(script.is_file())
+        self.assertTrue(wrapper.is_file())
+        self.assertIn("create_admin.py", wrapper.read_text())
 
     def test_backend_ci_matches_deployment_checks(self):
         workflow = (ROOT / ".github/workflows/backend-tests.yml").read_text()

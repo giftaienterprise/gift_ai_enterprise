@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.response import success
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_admin
 from app.database.session import get_db
 from app.schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 from app.services.crud.category_service import category_service
@@ -27,12 +27,12 @@ def list_categories(
     return success(result)
 
 
-@router.post("/", response_model=CategoryResponse, dependencies=[Depends(get_current_user)])
+@router.post("/", response_model=CategoryResponse, dependencies=[Depends(require_admin)])
 def create(data: CategoryCreate, db: Session = Depends(get_db)):
     return category_service.create(db, data)
 
 
-@router.put("/{category_id}", response_model=CategoryResponse, dependencies=[Depends(get_current_user)])
+@router.put("/{category_id}", response_model=CategoryResponse, dependencies=[Depends(require_admin)])
 def update(category_id: int, data: CategoryUpdate, db: Session = Depends(get_db)):
     category = category_service.get(db, category_id)
 
@@ -42,7 +42,7 @@ def update(category_id: int, data: CategoryUpdate, db: Session = Depends(get_db)
     return category_service.update(db, category, data)
 
 
-@router.delete("/{category_id}", dependencies=[Depends(get_current_user)])
+@router.delete("/{category_id}", dependencies=[Depends(require_admin)])
 def delete(category_id: int, db: Session = Depends(get_db)):
     category = category_service.get(db, category_id)
 

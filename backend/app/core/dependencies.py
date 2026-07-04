@@ -36,6 +36,12 @@ def get_current_user(
     return user
 
 
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="ADMIN_REQUIRED")
+    return current_user
+
+
 def enforce_ai_rate_limit(
     current_user: User = Depends(get_current_user),
 ) -> User:

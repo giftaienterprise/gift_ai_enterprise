@@ -13,6 +13,9 @@ class MainRouteTests(unittest.TestCase):
         expected = {
             "/api/auth/register",
             "/api/auth/login",
+            "/api/auth/me",
+            "/api/settings/public",
+            "/api/admin/summary",
             "/api/categories/",
             "/api/brands/",
             "/api/gifts/",

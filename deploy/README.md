@@ -50,6 +50,22 @@ chmod 600 /opt/gift_ai_enterprise/backend/.env
 
 Never copy the resulting file into Git, logs, screenshots, or chat.
 
+## 3.1 Create the first administrator
+
+Run this on the server after the database exists. It creates a new admin or promotes an existing user:
+
+```bash
+bash /opt/gift_ai_enterprise/deploy/scripts/create_admin.sh admin
+```
+
+To promote an account that already registered through the API:
+
+```bash
+bash /opt/gift_ai_enterprise/deploy/scripts/create_admin.sh existing-user --promote-only
+```
+
+Passwords are entered interactively unless `--password` is supplied. Do not paste credentials into chat or Git.
+
 ## 4. Deploy
 
 ```bash
@@ -69,11 +85,13 @@ journalctl -u gift-ai --no-pager -n 50
 From an IP allowed by the security group, verify:
 
 ```text
+http://SERVER_IP/
+http://SERVER_IP/admin/
 http://SERVER_IP/health
-http://SERVER_IP/openapi.json
 http://SERVER_IP/api/gifts/
 http://SERVER_IP/api/categories/
 http://SERVER_IP/api/brands/
+http://SERVER_IP/api/settings/public
 ```
 
 Direct access to `http://SERVER_IP:8000` must fail.
