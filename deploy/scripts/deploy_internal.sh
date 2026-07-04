@@ -61,7 +61,8 @@ if command -v npm >/dev/null 2>&1; then
   release_id=$(date -u +%Y%m%dT%H%M%SZ)
   storefront_release="$APP_DIR/releases/storefront/$release_id"
   admin_release="$APP_DIR/releases/admin/$release_id"
-  install -d -o giftai -g giftai -m 0750 "$storefront_release" "$admin_release"
+  install -d -o giftai -g giftai -m 0755 "$APP_DIR/releases/storefront" "$APP_DIR/releases/admin"
+  install -d -o giftai -g giftai -m 0755 "$storefront_release" "$admin_release"
 
   sudo -u giftai bash -c "cd '$APP_DIR/frontend' && npm ci && npm run build"
   sudo -u giftai bash -c "cd '$APP_DIR/admin' && npm ci && npm run build"
@@ -72,8 +73,31 @@ if command -v npm >/dev/null 2>&1; then
 
   ln -sfn "$storefront_release" "$APP_DIR/releases/storefront/current"
   ln -sfn "$admin_release" "$APP_DIR/releases/admin/current"
+
+  chmod o+x "$APP_DIR"
+  chmod o+x "$APP_DIR/releases"
+  chmod o+x "$APP_DIR/releases/storefront"
+  chmod o+x "$APP_DIR/releases/admin"
+  find "$APP_DIR/releases/storefront" -type d -exec chmod o+rx {} \;
+  find "$APP_DIR/releases/storefront" -type f -exec chmod o+r {} \;
+  find "$APP_DIR/releases/admin" -type d -exec chmod o+rx {} \;
+  find "$APP_DIR/releases/admin" -type f -exec chmod o+r {} \;
+
+  if [[ ! -f "$APP_DIR/releases/storefront/current/index.html" ]]; then
+    echo "Storefront build is missing index.html." >&2
+    exit 1
+  fi
+  if [[ ! -f "$APP_DIR/releases/admin/current/index.html" ]]; then
+    echo "Admin build is missing index.html." >&2
+    exit 1
+  fi
+  if ! sudo -u nginx test -r "$APP_DIR/releases/storefront/current/index.html"; then
+    echo "nginx cannot read storefront static files." >&2
+    exit 1
+  fi
 else
-  echo "npm is not installed; skipping frontend and admin build." >&2
+  echo "npm is not installed; frontend and admin cannot be deployed." >&2
+  exit 1
 fi
 
 install -o root -g root -m 0644 "$APP_DIR/deploy/systemd/gift-ai.service" /etc/systemd/system/gift-ai.service

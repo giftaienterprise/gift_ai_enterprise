@@ -105,7 +105,15 @@ class ProjectHygieneTests(unittest.TestCase):
         self.assertIn("proxy_pass http://127.0.0.1:8000/api/", nginx)
         self.assertIn("location /uploads/", nginx)
         self.assertIn("try_files $uri $uri/ /index.html", nginx)
+        self.assertIn("return 301 /admin/", nginx)
         self.assertNotIn(":8000;", nginx)
+
+    def test_deploy_script_publishes_readable_static_files(self):
+        deploy = (ROOT / "deploy/scripts/deploy_internal.sh").read_text()
+        fix = (ROOT / "deploy/scripts/fix_static_sites.sh").read_text()
+        self.assertIn("chmod o+x", deploy)
+        self.assertIn("nginx cannot read storefront static files", deploy)
+        self.assertIn("make_static_readable", fix)
 
     def test_deploy_script_builds_frontends_when_npm_available(self):
         deploy = (ROOT / "deploy/scripts/deploy_internal.sh").read_text()
